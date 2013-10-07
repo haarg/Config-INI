@@ -72,14 +72,14 @@ returns false.
 =cut
 
 sub parse_value_assignment {
-  my($self, $line) = @_;
+  my($self, $line, $handle) = @_;
   my($name, $value);
 
   ($name, $value) =
-      $self->parse_heredoc_assignment($line);
+      $self->parse_heredoc_assignment($line, $handle);
   return ($name, $value) if $name;
   ($name, $value) =
-      $self->SUPER::parse_value_assignment($line);
+      $self->SUPER::parse_value_assignment($line, $handle);
   return ($name, $value) if $name;
   return;
 }
@@ -101,8 +101,7 @@ input without finding the heredoc terminator.
 =cut
 
 sub parse_heredoc_assignment {
-  my ($self, $line) = @_;
-  my $handle = $self->{handle};
+  my ($self, $line, $handle) = @_;
   my $heredoc_starting_line_number = $handle->input_line_number;
 
   return unless $line =~ /^\s*([^=\s][^=]*?)\s*=\s*<<\s*([^\s]*?)\s*$/;

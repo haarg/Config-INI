@@ -94,11 +94,8 @@ sub read_handle {
 
   my $self = ref $invocant ? $invocant : $invocant->new;
 
-  # easy access to handle for subclasses
-  $self->{handle} = $handle;
-
   # parse the file
-  LINE: while (my $line = $self->{handle}->getline) {
+  LINE: while (my $line = $handle->getline) {
     next LINE if $self->can_ignore($line);
 
     $self->preprocess_line(\$line);
@@ -112,12 +109,12 @@ sub read_handle {
       next LINE;
     }
 
-    if (my ($name, $value) = $self->parse_value_assignment($line)) {
+    if (my ($name, $value) = $self->parse_value_assignment($line, $handle)) {
       $self->set_value($name, $value);
       next LINE;
     }
 
-    $self->handle_unparsed_line($line);
+    $self->handle_unparsed_line($handle, $line);
   }
 
   $self->finalize;
@@ -181,7 +178,7 @@ sub change_section {
 
 =head2 parse_value_assignment
 
-  my ($name, $value) = $reader->parse_value_assignment($line);
+  my ($name, $value) = $reader->parse_value_assignment($line, $handle);
 
 Given a line of input, this method decides whether the line is a property
 value assignment.  If it is, it returns the name of the property and the value
